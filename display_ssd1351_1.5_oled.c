@@ -3,10 +3,9 @@
 #include <driver/spi_master.h>
 #include <freertos/task.h>
 #include <string.h>
-#include <include/display.h>
 
+#include "display.h"
 #include "lodepng.h"
-
 #include "display_ssd1351_1.5_oled.h"
 
 #define LOG_TAG "ssd1351"

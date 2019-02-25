@@ -6,7 +6,7 @@
 #include <driver/spi_master.h>
 #include <string.h>
 #include <display.h>
-#include <include/lodepng.h>
+#include "lodepng.h"
 #include "display_st7789_1.3_ips.h"
 
 #define LOG_TAG "st7789"
