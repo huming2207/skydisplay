@@ -1,15 +1,9 @@
-//
-// Created by hu on 13/04/19.
-//
+#pragma once
 
-#ifndef GOLDEN_LOCK_ESP32_HPP
-#define GOLDEN_LOCK_ESP32_HPP
+#include <hm.hpp>
 
-
-class esp32
+class esp32 : hm
 {
-
+    public:
+        void wait_ms(uint32_t ms) override;
 };
-
-
-#endif //GOLDEN_LOCK_ESP32_HPP
