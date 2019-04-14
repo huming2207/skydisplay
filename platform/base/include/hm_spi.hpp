@@ -24,8 +24,8 @@ class hm_spi
 {
     private:
     public:
-        virtual uint16_t hm_spi_add_device(hm_spi_device_t &spi_device) = 0;
-        virtual hm_err_t hm_spi_send(uint8_t *send_buf, size_t len) = 0;
-        virtual hm_err_t hm_spi_recv(uint8_t *send_buf, size_t send_len, uint8_t *recv_buf, size_t recv_len) = 0;
+        virtual uint8_t hm_spi_add_device(hm_spi_device_t &spi_device) = 0;
+        virtual hm_err_t hm_spi_send(uint8_t cs, uint8_t *send_buf, size_t len) = 0;
+        virtual hm_err_t hm_spi_recv(uint8_t cs, uint8_t *send_buf, size_t send_len, uint8_t *recv_buf, size_t recv_len) = 0;
 };
 
