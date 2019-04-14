@@ -3,23 +3,52 @@
 //
 
 #include <driver/spi_master.h>
+#include <esp_log.h>
+#include <cstring>
 #include "esp32_spi.hpp"
+
+#define LOG_TAG "hm_esp32_spi"
 
 hm_err_t esp32_spi::hm_spi_send(uint8_t cs, uint8_t *send_buf, size_t len)
 {
-    return 0;
+    if(!send_buf) {
+        ESP_LOGE(LOG_TAG, "Payload is null!");
+        return HM_ERR_NOT_FOUND;
+    }
+
+    spi_transaction_t spi_tract;
+    memset(&spi_tract, 0, sizeof(spi_tract));
+
+    spi_tract.tx_buffer = send_buf;
+    spi_tract.length = len * 8;
+    spi_tract.rxlength = 0;
+
+    return spi_device_transmit(device_map[(gpio_num_t)cs], &spi_tract); // Use blocking transmit for now
 }
 
 hm_err_t esp32_spi::hm_spi_recv(uint8_t cs, uint8_t *send_buf, size_t send_len, uint8_t *recv_buf, size_t recv_len)
 {
-    return 0;
+    if(!send_buf) {
+        ESP_LOGE(LOG_TAG, "Payload is null!");
+        return HM_ERR_NOT_FOUND;
+    }
+
+    spi_transaction_t spi_tract;
+    memset(&spi_tract, 0, sizeof(spi_tract));
+
+    spi_tract.tx_buffer = send_buf;
+    spi_tract.length = send_len * 8;
+    spi_tract.rx_buffer = recv_buf;
+    spi_tract.rxlength = recv_len * 8;
+
+    return spi_device_transmit(device_map[(gpio_num_t)cs], &spi_tract); // Use blocking transmit for now
 }
 
 uint8_t esp32_spi::hm_spi_add_device(hm_spi_device_t &spi_device)
 {
     spi_device_interface_config_t device_config = {
             .clock_speed_hz = spi_device.speed_hz,
-            .spics_io_num = spi_device.cs_pin,
+            .spics_io_num = spi_device.manual_cs ? -1 : spi_device.cs_pin,
             .queue_size = 7
     };
 

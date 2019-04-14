@@ -6,18 +6,19 @@
 
 typedef struct __attribute__((packed))
 {
-    uint8_t mosi;
-    uint8_t sclk;
-    uint8_t miso;
-    uint8_t wrpt;
-    uint8_t hold;
+    uint8_t mosi = 0;
+    uint8_t sclk = 0;
+    uint8_t miso = 0;
+    uint8_t wrpt = 0;
+    uint8_t hold = 0;
 } hm_spi_bus_t;
 
 typedef struct __attribute__((packed))
 {
-    uint8_t spi_mode;
-    uint8_t cs_pin;
-    int32_t speed_hz;
+    uint8_t spi_mode = 0;
+    uint8_t cs_pin = 5;
+    int32_t speed_hz = 0;
+    bool manual_cs = false;
 } hm_spi_device_t;
 
 class hm_spi
