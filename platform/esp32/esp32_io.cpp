@@ -4,7 +4,10 @@
 
 #include <esp_err.h>
 #include <driver/gpio.h>
+#include <thread>
 #include "esp32_io.hpp"
+
+static xQueueHandle gpio_intr_queue = NULL;
 
 hm_err_t esp32_io::set_pin(io_state state)
 {
@@ -43,9 +46,41 @@ esp32_io::esp32_io(uint8_t pin, io_pull pull, io_mode mode)
     }
 
     ESP_ERROR_CHECK(gpio_set_pull_mode(curr_pin, esp_pull_mode));
+    if(gpio_intr_queue == nullptr) gpio_intr_queue = xQueueCreate(16, sizeof(uint32_t));
 }
 
 esp32_io::~esp32_io()
 {
     gpio_reset_pin(curr_pin);
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
+hm_err_t esp32_io::attach_interrupt(io_intr intr_mode, std::function<void(uint8_t)> cb_func)
+{
+    esp_err_t ret = gpio_set_intr_type(curr_pin, (gpio_int_type_t)intr_mode);
+    ret = ret ?: gpio_install_isr_service(0);
+    ret = ret ?: gpio_isr_handler_add(curr_pin, esp32_io::intr_handler, (void*)curr_pin);
+    intr_cb_func = cb_func;
+
+    auto signal_thread = std::thread{&esp32_io::intr_signal_handler, this};
+    signal_thread.join();
+
+    return ret;
+}
+
+void esp32_io::intr_signal_handler()
+{
+    uint32_t io_num = 0;
+    for(;;) {
+        if(xQueueReceive(gpio_intr_queue, &io_num, portMAX_DELAY)) {
+            intr_cb_func(io_num);
+        }
+    }
+}
+#pragma clang diagnostic pop
+
+void esp32_io::intr_handler(void *p)
+{
+    xQueueSendFromISR(gpio_intr_queue, p, NULL);
 }
